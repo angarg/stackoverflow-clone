@@ -11,6 +11,7 @@ const commentSchema = new Schema({
   created: { type: Date, default: Date.now }
 });
 
+commentSchema.set('autoCreate', true)
 commentSchema.set('toJSON', { getters: true });
 commentSchema.options.toJSON.transform = (doc, ret) => {
   const obj = { ...ret };

@@ -9,4 +9,5 @@ const voteSchema = new Schema(
   { _id: false }
 );
 
+voteSchema.set('autoCreate', true)
 module.exports = voteSchema

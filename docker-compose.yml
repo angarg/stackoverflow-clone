@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+    mongo:
+        image: mongo
+        container_name: mongo
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=root
+            - MONGO_INITDB_ROOT_PASSWORD=root
+            - MONGO_INITDB_DATABASE=stackoverflow
+            - MONGO_INITDB_DATABASE_USERNAME=stackoverflow
+            - MONGO_INITDB_DATABASE_PASSWORD=stackoverflow
+        ports:
+            - 27017:27017
+        volumes:
+            - /data/db
+            - ./mongo/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+
+    admin:
+        image: mongo-express
+        container_name: admin
+        environment:
+            - ME_CONFIG_MONGODB_SERVER=mongo
+            - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+            - ME_CONFIG_MONGODB_ADMINPASSWORD=root
+        restart: unless-stopped
+        ports:
+            - "18081:8081"
+        depends_on:
+            - mongo
+
+    server:
+        container_name: server
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        image: server:latest
+        command: sh -c "/server/wait-for-mongo.sh && npm run dev"
+        restart: unless-stopped
+        tty: true
+        environment:
+            - DATABASE_URL=mongodb://stackoverflow:stackoverflow@mongo/stackoverflow
+            - DATABASE_HOST=mongo
+            - DATABASE_PORT=27017
+            - JWT_SECRET=root
+            - NODE_ENV=production
+        ports:
+            - "18080:8080"
+        volumes:
+            - ./server:/server
+            - /server/node_modules
+        depends_on:
+            - mongo
+            - admin
+
+    client:
+        container_name: client
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        image: client:latest
+        command: npm run dev
+        restart: unless-stopped
+        tty: true
+        environment:
+            - SITE_NAME=localhost:18080
+            - NODE_ENV=production
+        ports:
+            - "10080:3000"
+        volumes:
+            - ./client:/client
+            - /client/node_modules
+        depends_on:
+            - server

@@ -17,6 +17,7 @@ const answerSchema = new Schema({
   comments: [commentSchema]
 });
 
+answerSchema.set('autoCreate', true)
 answerSchema.set('toJSON', { getters: true });
 
 answerSchema.methods = {

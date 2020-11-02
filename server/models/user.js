@@ -14,6 +14,7 @@ const userModel = new Schema({
   created: { type: Date, default: Date.now }
 });
 
+userModel.set('autoCreate', true)
 userModel.set('toJSON', { getters: true });
 userModel.options.toJSON.transform = (doc, ret) => {
   const obj = { ...ret };

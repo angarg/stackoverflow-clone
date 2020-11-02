@@ -22,6 +22,7 @@ const questionSchema = new Schema({
   views: { type: Number, default: 0 }
 });
 
+questionSchema.set('autoCreate', true)
 questionSchema.set('toJSON', { getters: true });
 
 questionSchema.options.toJSON.transform = (doc, ret) => {
